@@ -1,4 +1,4 @@
-# Quick Instruction for LlamaCpp setup
+# Quick Instruction for LlamaCpp setup (Linux)
 
 After creating virtual environment and install `langchain`:
 
