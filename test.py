@@ -17,15 +17,19 @@ import json
 import time
 import asyncio
 
-LLAMA_GUARD_MODEL_PATH = "./meta-llama-guard-2-8b_q4_k_m.gguf"
+LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-8B-Instruct.Q4_K_M.gguf"
 
+n_gpu_layers = 4000  # Change this value based on your model and your GPU VRAM pool.
+n_batch = 512  # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU.
 def initialize_llm(model_path) -> LlamaCpp:
     # Initialize the LlamaCpp instance with local model path
     llm = LlamaCpp(
         model_path=model_path,
         callbacks=[StreamingStdOutCallbackHandler()],
         temperature=0.75,
-        n_batch=512,
+        max_tokens=2000,
+        n_gpu_layers=n_gpu_layers,
+        n_batch=n_batch,
         n_ctx=2048,
         verbose=True,
     )
@@ -74,7 +78,12 @@ async def evaluate_safety(user_question) -> str:
 
 def index_pdf(file_path):
     # Initialize the Local Model
-    llm =Ollama(model="llama3", temperature=0)
+    llm =Ollama(
+        model="llama3",
+        callbacks=[StreamingStdOutCallbackHandler()],
+        temperature=0.75,
+        verbose=True,
+        )
 
     # Indexing: Load
     loader = PyPDFLoader(file_path)
