@@ -18,7 +18,8 @@ import asyncio
 # n_batch = 512
 
 class RAGChatbot:
-    def __init__(self):        
+    def __init__(self):      
+        self.model_name = None  
         self.vectorstore = None
         self.rag_chain = None
 
@@ -78,6 +79,15 @@ class RAGChatbot:
     #     else:
     #         return "safe"
 
+    def set_model_name(self):
+        while True:
+            model_name = input("Select the model (llama3 or llama3:70B): ").strip()
+            if model_name in ["llama3", "llama3:70B"]:
+                self.model_name = model_name
+                break
+            else:
+                print("Invalid model name. Please select either 'llama3' or 'llama3:70B'.")
+
     def index_json_folder(self, file_path):
         loader = JSONLoader(file_path, jq_schema=".prizes[]", text_content=False)
         docs = loader.load()
@@ -86,7 +96,7 @@ class RAGChatbot:
 
     def _index_documents(self, docs):
         embedding = OllamaEmbeddings(model="nomic-embed-text")
-        
+
         if self.vectorstore is None:
             self.vectorstore = Chroma.from_documents(
                 documents=docs,
@@ -94,20 +104,21 @@ class RAGChatbot:
             )
         else:
             self.vectorstore.add_documents(docs)
-        
+
         retriever = self.vectorstore.as_retriever(
             search_type="similarity",
             search_kwargs={"k": 6},
         )
-        
+
         prompt = hub.pull("rlm/rag-prompt")
-        llama = Ollama(model="llama3", temperature=0)
+        llama = Ollama(model=self.model_name, temperature=0)
+
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
 
         self.rag_chain = (
             {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt 
+            | prompt
             | llama
             | StrOutputParser()
         )
@@ -115,9 +126,6 @@ class RAGChatbot:
     async def query_model(self, question: str):
         if self.rag_chain is None:
             return {"error": "No documents have been indexed yet."}
-
-        # if await self.evaluate_safety(question) == "unsafe":
-        #     return {"question": question, "answer": "Sorry, I cannot answer this question, please try again"}
 
         start_time = time.perf_counter()
         answer = self.rag_chain.invoke(question)
@@ -127,6 +135,7 @@ class RAGChatbot:
         return {"question": question, "answer": answer}
 
     def continuous_conversation(self):
+        self.set_model_name()
         conversation_state = {}
         while True:
             question = input("You: ")
@@ -155,10 +164,4 @@ class RAGChatbot:
 
 # Example usage
 chatbot = RAGChatbot()
-
-# Index JSON files from a folder
-file_path_json = "prize.json"
-print(chatbot.index_json_folder(file_path_json))
-
-# Start continuous conversation
 chatbot.continuous_conversation()
