@@ -89,6 +89,8 @@ class RAGChatbot:
                 print("Invalid model name. Please select either 'llama3' or 'llama3:70B'.")
 
     def index_json_folder(self, file_path):
+        if self.model_name is None:
+            self.set_model_name()
         loader = JSONLoader(file_path, jq_schema=".prizes[]", text_content=False)
         docs = loader.load()
         self._index_documents(docs)
