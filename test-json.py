@@ -164,4 +164,9 @@ class RAGChatbot:
 
 # Example usage
 chatbot = RAGChatbot()
+
+# Index JSON files from a folder
+file_path_json = "prize.json"
+print(chatbot.index_json_folder(file_path_json))
+
 chatbot.continuous_conversation()
