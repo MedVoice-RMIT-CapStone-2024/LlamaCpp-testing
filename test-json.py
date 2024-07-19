@@ -101,7 +101,7 @@ class RAGChatbot:
         )
         
         prompt = hub.pull("rlm/rag-prompt")
-        llama = Ollama(model="llama3:70", temperature=0)
+        llama = Ollama(model="llama3:70b", temperature=0)
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
 
