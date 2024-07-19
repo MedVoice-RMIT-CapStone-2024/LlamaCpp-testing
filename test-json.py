@@ -22,20 +22,20 @@ class RAGChatbot:
         self.vectorstore = None
         self.rag_chain = None
 
-    def initialize_llm(self, model_path) -> LlamaCpp:
-        llm = LlamaCpp(
-            model_path=model_path,
-            callbacks=[StreamingStdOutCallbackHandler()],
-            top_k=-1,
-            top_p=0.95,
-            temperature=0.8,
-            max_tokens=128,
-            # n_gpu_layers=n_gpu_layers,
-            # n_batch=n_batch,
-            n_ctx=2048,
-            verbose=True,
-        )
-        return llm
+    # def initialize_llm(self, model_path) -> LlamaCpp:
+    #     llm = LlamaCpp(
+    #         model_path=model_path,
+    #         callbacks=[StreamingStdOutCallbackHandler()],
+    #         top_k=-1,
+    #         top_p=0.95,
+    #         temperature=0.8,
+    #         max_tokens=128,
+    #         # n_gpu_layers=n_gpu_layers,
+    #         # n_batch=n_batch,
+    #         n_ctx=2048,
+    #         verbose=True,
+    #     )
+    #     return llm
 
     # async def evaluate_safety(self, user_question) -> str:
     #     safety_prompt = f"""
