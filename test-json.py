@@ -132,8 +132,9 @@ class RAGChatbot:
 
         async for token in self.async_token_stream(question):
             self.token_callback(token)
-            answer += token  # Add a space to separate tokens.
-            answer.strip()
+            answer += token + " "  # Add a space to separate tokens.
+            # Debug print statement to verify space addition
+            print(f"DEBUG: Current answer: '{answer}'")
 
         end_time = time.perf_counter()
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
