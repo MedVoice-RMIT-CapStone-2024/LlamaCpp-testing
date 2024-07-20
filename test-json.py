@@ -78,7 +78,7 @@ class RAGChatbot:
     #     else:
     #         return "safe"
     # Define a callback function to handle token streaming
-    def token_callback(token):
+    def token_callback(self, token):
         print(token, end='', flush=True)
 
     def index_json_folder(self, file_path):
