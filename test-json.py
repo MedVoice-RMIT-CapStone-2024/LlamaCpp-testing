@@ -121,7 +121,7 @@ class RAGChatbot:
         response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
         for token in response.split():  # Simulate token by token processing.
             yield token
-            await asyncio.sleep(0.1)  # Simulate a delay for token generation.
+            await asyncio.sleep(0.5)  # Simulate a delay for token generation.
 
     async def query_model(self, question: str):
         if self.rag_chain is None:
@@ -132,9 +132,9 @@ class RAGChatbot:
 
         async for token in self.async_token_stream(question):
             self.token_callback(token)
-            answer += token + " "  # Add a space to separate tokens.
-            
-        print(answer)
+            answer += token  # Add a space to separate tokens.
+            answer.strip()
+
         end_time = time.perf_counter()
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
         return {"question": question, "answer": answer.strip()}  # Remove trailing space.
