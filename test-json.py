@@ -114,13 +114,13 @@ class RAGChatbot:
             | llama
             | StrOutputParser()
         )
-        async def async_token_stream(self, question: str):
-            # Simulate token streaming from the model.
-            # Replace this with actual token streaming logic if supported by the model.
-            response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
-            for token in response.split():  # Simulate token by token processing.
-                yield token
-                await asyncio.sleep(0.1)  # Simulate a delay for token generation.
+    async def async_token_stream(self, question: str):
+        # Simulate token streaming from the model.
+        # Replace this with actual token streaming logic if supported by the model.
+        response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
+        for token in response.split():  # Simulate token by token processing.
+            yield token
+            await asyncio.sleep(0.1)  # Simulate a delay for token generation.
 
     async def query_model(self, question: str):
         if self.rag_chain is None:
