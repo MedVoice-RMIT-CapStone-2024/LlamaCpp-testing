@@ -109,12 +109,12 @@ class RAGChatbot:
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
 
-        self.rag_chain = (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt 
-            | llama
-            | StrOutputParser()
-        )
+        # self.rag_chain = (
+        #     {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        #     | prompt 
+        #     | llama
+        #     | StrOutputParser()
+        # )
 
     async def async_token_stream(self, question: str):
         # Simulate token streaming from the model.
@@ -125,8 +125,8 @@ class RAGChatbot:
             await asyncio.sleep(0.01)  # Simulate a delay for token generation.
 
     async def query_model(self, question: str):
-        if self.rag_chain is None:
-            return {"error": "No documents have been indexed yet."}
+        # if self.rag_chain is None:
+        #     return {"error": "No documents have been indexed yet."}
 
         start_time = time.perf_counter()
         answer = ""
