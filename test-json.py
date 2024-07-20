@@ -120,7 +120,7 @@ class RAGChatbot:
         #     return {"question": question, "answer": "Sorry, I cannot answer this question, please try again"}
 
         start_time = time.perf_counter()
-        answer = self.rag_chain.invoke(question)
+        answer = await asyncio.to_thread(self.rag_chain.invoke, question)
         end_time = time.perf_counter()
 
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
