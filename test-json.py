@@ -13,29 +13,29 @@ from langchain.chains import LLMChain
 import time
 import asyncio
 
-# LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-8B-Instruct.Q4_K_M.gguf"
-# n_gpu_layers = 4000
-# n_batch = 512
+LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-8B-Instruct.Q4_1.gguf"
+n_gpu_layers = 63000
+n_batch = 512
 
 class RAGChatbot:
     def __init__(self):        
         self.vectorstore = None
         self.rag_chain = None
 
-    # def initialize_llm(self, model_path) -> LlamaCpp:
-    #     llm = LlamaCpp(
-    #         model_path=model_path,
-    #         callbacks=[StreamingStdOutCallbackHandler()],
-    #         top_k=-1,
-    #         top_p=0.95,
-    #         temperature=0.8,
-    #         max_tokens=128,
-    #         # n_gpu_layers=n_gpu_layers,
-    #         # n_batch=n_batch,
-    #         n_ctx=2048,
-    #         verbose=True,
-    #     )
-    #     return llm
+    def initialize_llm(self, model_path) -> LlamaCpp:
+        llm = LlamaCpp(
+            model_path=model_path,
+            callbacks=[StreamingStdOutCallbackHandler()],
+            top_k=-1,
+            top_p=0.95,
+            temperature=0.8,
+            max_tokens=128,
+            n_gpu_layers=n_gpu_layers,
+            n_batch=n_batch,
+            n_ctx=2048,
+            verbose=True,
+        )
+        return llm
 
     # async def evaluate_safety(self, user_question) -> str:
     #     safety_prompt = f"""
@@ -104,7 +104,8 @@ class RAGChatbot:
         )
         
         prompt = hub.pull("rlm/rag-prompt")
-        self.llama = Ollama(model="llama3", temperature=0)
+        # self.llama = Ollama(model="llama3", temperature=0)
+        self.llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
