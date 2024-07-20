@@ -77,6 +77,9 @@ class RAGChatbot:
     #         return "unsafe"
     #     else:
     #         return "safe"
+    # Define a callback function to handle token streaming
+    def token_callback(token):
+        print(token, end='', flush=True)
 
     def index_json_folder(self, file_path):
         loader = JSONLoader(file_path, jq_schema=".prizes[]", text_content=False)
@@ -120,7 +123,10 @@ class RAGChatbot:
         #     return {"question": question, "answer": "Sorry, I cannot answer this question, please try again"}
 
         start_time = time.perf_counter()
-        answer = self.rag_chain.invoke(question)
+        answer = ""
+        async for token in self.rag_chain.stream(question):
+            self.token_callback(token)
+            answer += token
         end_time = time.perf_counter()
 
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
