@@ -161,7 +161,7 @@ class RAGChatbot:
                 else:
                     answer = asyncio.run(self.query_model(question))
                     conversation_state[question] = answer
-                    print(answer)
+                    print("\nFinal answer:", answer["answer"])
 
     def similar(self, a, b):
         return SequenceMatcher(None, a, b).ratio()
