@@ -77,9 +77,6 @@ class RAGChatbot:
     #         return "unsafe"
     #     else:
     #         return "safe"
-    # Define a callback function to handle token streaming
-    def token_callback(self, token):
-        print(token, end='', flush=True)
 
     def index_json_folder(self, file_path):
         loader = JSONLoader(file_path, jq_schema=".prizes[]", text_content=False)
@@ -115,29 +112,19 @@ class RAGChatbot:
             | StrOutputParser()
         )
 
-    async def async_token_stream(self, question: str):
-        # Simulate token streaming from the model.
-        # Replace this with actual token streaming logic if supported by the model.
-        response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
-        for token in response.split():  # Simulate token by token processing.
-            yield token
-            await asyncio.sleep(0.3)  # Simulate a delay for token generation.
-
     async def query_model(self, question: str):
         if self.rag_chain is None:
             return {"error": "No documents have been indexed yet."}
 
+        # if await self.evaluate_safety(question) == "unsafe":
+        #     return {"question": question, "answer": "Sorry, I cannot answer this question, please try again"}
+
         start_time = time.perf_counter()
-        answer = ""
-
-        async for token in self.async_token_stream(question):
-            self.token_callback(token)
-            answer += token + " "  # Add a space to separate tokens.
-            print(answer)
-
+        answer = self.rag_chain.invoke(question)
         end_time = time.perf_counter()
+
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
-        return {"question": question, "answer": answer.strip()}  # Remove trailing space.
+        return {"question": question, "answer": answer}
 
     def continuous_conversation(self):
         conversation_state = {}
@@ -161,7 +148,7 @@ class RAGChatbot:
                 else:
                     answer = asyncio.run(self.query_model(question))
                     conversation_state[question] = answer
-                    print("\nFinal answer:", answer["answer"])
+                    print(answer)
 
     def similar(self, a, b):
         return SequenceMatcher(None, a, b).ratio()
