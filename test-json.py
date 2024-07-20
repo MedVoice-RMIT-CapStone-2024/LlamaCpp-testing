@@ -104,7 +104,7 @@ class RAGChatbot:
         )
         
         prompt = hub.pull("rlm/rag-prompt")
-        llama = Ollama(model="llama3", temperature=0)
+        self.llama = Ollama(model="llama3", temperature=0)
         
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
@@ -119,7 +119,7 @@ class RAGChatbot:
     async def async_token_stream(self, question: str):
         # Simulate token streaming from the model.
         # Replace this with actual token streaming logic if supported by the model.
-        response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
+        response = self.llama.invoke(question)  # Assume this returns the complete response for now.
         for token in response.split():  # Simulate token by token processing.
             yield token
             await asyncio.sleep(0.01)  # Simulate a delay for token generation.
@@ -135,7 +135,6 @@ class RAGChatbot:
         async for token in self.async_token_stream(question):
             self.token_callback(token)
             answer += token + " "  # Add a space to separate tokens.
-            print(answer)
 
         end_time = time.perf_counter()
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
