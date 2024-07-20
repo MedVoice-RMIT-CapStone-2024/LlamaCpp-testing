@@ -105,29 +105,29 @@ class RAGChatbot:
         
         prompt = hub.pull("rlm/rag-prompt")
         # self.llama = Ollama(model="llama3", temperature=0)
-        self.llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
+        llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
 
-        # self.rag_chain = (
-        #     {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        #     | prompt 
-        #     | llama
-        #     | StrOutputParser()
-        # )
+        self.rag_chain = (
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            | prompt 
+            | llama
+            | StrOutputParser()
+        )
 
     async def async_token_stream(self, question: str):
         # Simulate token streaming from the model.
         # Replace this with actual token streaming logic if supported by the model.
-        response = self.llama.invoke(question)  # Assume this returns the complete response for now.
+        response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
         for token in response.split():  # Simulate token by token processing.
             yield token
             await asyncio.sleep(0.01)  # Simulate a delay for token generation.
 
     async def query_model(self, question: str):
-        # if self.rag_chain is None:
-        #     return {"error": "No documents have been indexed yet."}
+        if self.rag_chain is None:
+            return {"error": "No documents have been indexed yet."}
 
         start_time = time.perf_counter()
         answer = ""
