@@ -13,7 +13,7 @@ from langchain.chains import LLMChain
 import time
 import asyncio
 
-LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-8B-Instruct.Q4_1.gguf"
+LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
 n_gpu_layers = 63000
 n_batch = 512
 
@@ -104,8 +104,8 @@ class RAGChatbot:
         )
         
         prompt = hub.pull("rlm/rag-prompt")
-        llama = Ollama(model="llama3", temperature=0)
-        # llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
+        # llama = Ollama(model="llama3", temperature=0)
+        llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
