@@ -104,7 +104,7 @@ class RAGChatbot:
         )
         
         prompt = hub.pull("rlm/rag-prompt")
-        llama = Ollama(model="llama3:70b", temperature=0)
+        llama = Ollama(model="llama3", temperature=0)
         # llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
@@ -130,13 +130,13 @@ class RAGChatbot:
             return {"error": "No documents have been indexed yet."}
 
         start_time = time.perf_counter()
-        # answer = ""
+        answer = ""
 
-        # # Process each token and print it in real-time
-        # async for token in self.async_token_stream(question):
-        #     self.token_callback(token)
-        #     answer += token + " "  # Add a space to separate tokens.
-        answer = self.rag_chain.invoke(question)
+        # Process each token and print it in real-time
+        async for token in self.async_token_stream(question):
+            self.token_callback(token)
+            answer += token + " "  # Add a space to separate tokens.
+        # answer = self.rag_chain.invoke(question)
         end_time = time.perf_counter()
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
         return {"question": question, "answer": answer.strip()}  # Remove trailing space.
