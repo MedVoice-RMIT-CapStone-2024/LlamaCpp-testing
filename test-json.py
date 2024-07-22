@@ -130,13 +130,13 @@ class RAGChatbot:
             return {"error": "No documents have been indexed yet."}
 
         start_time = time.perf_counter()
-        answer = ""
+        # answer = ""
 
-        # Process each token and print it in real-time
-        async for token in self.async_token_stream(question):
-            self.token_callback(token)
-            answer += token + " "  # Add a space to separate tokens.
-        # answer = self.rag_chain.invoke(question)
+        # # Process each token and print it in real-time
+        # async for token in self.async_token_stream(question):
+        #     self.token_callback(token)
+        #     answer += token + " "  # Add a space to separate tokens.
+        answer = self.rag_chain.invoke(question)
         end_time = time.perf_counter()
         print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
         return {"question": question, "answer": answer.strip()}  # Remove trailing space.
