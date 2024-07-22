@@ -123,7 +123,7 @@ class RAGChatbot:
         response = self.rag_chain.invoke(question)  # Assume this returns the complete response for now.
         for token in response.split():  # Simulate token by token processing.
             yield token
-            await asyncio.sleep(0.1)  # Simulate a delay for token generation.
+            await asyncio.sleep(0.01)  # Simulate a delay for token generation.
 
     async def query_model(self, question: str):
         if self.rag_chain is None:
