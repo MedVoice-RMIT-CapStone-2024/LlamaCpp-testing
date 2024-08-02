@@ -1,33 +1,17 @@
-from langchain_community.llms import LlamaCpp
-from langchain_community.llms import Ollama 
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain_core.prompts import PromptTemplate
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain_community.document_loaders import PyPDFLoader 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain import hub 
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.embeddings import LlamaCppEmbeddings
-from difflib import SequenceMatcher
 from langchain.chains import LLMChain
-import os
-import json
-import time
-import asyncio
 
-LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-8B-Instruct.Q4_K_M.gguf"
+LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
+n_gpu_layers = 63000
+n_batch = 512
 
-n_gpu_layers = 4000  # Change this value based on your model and your GPU VRAM pool.
-n_batch = 512  # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU.
-def initialize_llm(model_path) -> LlamaCpp:
-    # Initialize the LlamaCpp instance with local model path
+def initialize_llm(self, model_path) -> LlamaCpp:
     llm = LlamaCpp(
         model_path=model_path,
         callbacks=[StreamingStdOutCallbackHandler()],
-        temperature=0.75,
-        max_tokens=2000,
+        top_k=-1,
+        top_p=0.95,
+        temperature=0.8,
+        max_tokens=128,
         n_gpu_layers=n_gpu_layers,
         n_batch=n_batch,
         n_ctx=2048,
@@ -35,7 +19,7 @@ def initialize_llm(model_path) -> LlamaCpp:
     )
     return llm
 
-async def evaluate_safety(user_question) -> str:
+async def evaluate_safety(self, user_question) -> str:
     safety_prompt = f"""
     [INST] Task: Check if there is unsafe content in 'User' messages in conversations according our safety policy with the below categories.
     \\n\\n<BEGIN UNSAFE CONTENT CATEGORIES>\\nO1: Violence and Hate.\\nShould not\\n- Help people plan or engage in violence.\\n- Encourage people to engage 
@@ -67,114 +51,11 @@ async def evaluate_safety(user_question) -> str:
     assessment for User in the above conversation:\\n- First line must read 'safe' or 'unsafe'. [/INST]
     """
 
-    guard_llm = initialize_llm(LLAMA_GUARD_MODEL_PATH)
+    guard_llm = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
     output = guard_llm.invoke(safety_prompt)
 
-    # Extract the safety assessment from the output
-    response_text = output
-    if "unsafe" in response_text.lower():
+    response_text = [output]
+    if "unsafe" in response_text[-1].lower():
         return "unsafe"
-    return "safe"
-
-def index_pdf(file_path):
-    # Initialize the Local Model
-    llm =Ollama(
-        model="llama3",
-        callbacks=[StreamingStdOutCallbackHandler()],
-        temperature=0.75,
-        verbose=True,
-        )
-
-    # Indexing: Load
-    loader = PyPDFLoader(file_path)
-    docs = loader.load()
-
-    # Indexing: Split
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        add_start_index=True,
-    )
-    all_splits = text_splitter.split_documents(docs)
-
-    # Indexing: Store
-    # embedding = LlamaCppEmbeddings(model_path="./nomic-embed-text-v1.5.f32.gguf")
-    embedding = OllamaEmbeddings(model="nomic-embed-text")
-    vectorstore = Chroma.from_documents(
-        documents=all_splits,
-        embedding=embedding,
-    )
-    retriever = vectorstore.as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": 6},
-    )
-
-    # Store retriever globally for later use
-    global rag_chain
-    prompt = hub.pull("rlm/rag-prompt")
-
-    def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
-
-    def create_rag_chain():
-        return (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt
-            | llm 
-            | StrOutputParser()
-        )
-
-    rag_chain = create_rag_chain()
-    
-    return {"message": "PDF indexed successfully"}
-
-async def query_model(question: str):
-    if 'rag_chain' not in globals():
-        return "No documents have been indexed yet."
-
-    if await evaluate_safety(question) == "unsafe":
-        answer="Sorry, I cannot answer this question, please try again"
-        print(answer)
     else:
-        start_time = time.perf_counter()
-        answer = rag_chain.invoke(question)
-        end_time = time.perf_counter()
-
-        print(f"\nRaw output runtime: {end_time - start_time} seconds\n")
-    
-    return answer
-
-def similar(a, b):
-    return SequenceMatcher(None, a, b).ratio()
-
-# Example usage
-file_path = "./update-28-covid-19-what-we-know.pdf"
-print(index_pdf(file_path)["message"])
-
-# Interactive RAG System
-conversation_state = {}
-while True:
-    question = input("Please enter your question or type 'exit' to end the conversation: ")
-    if question.lower() == 'exit':
-        conversation_state = {}
-        print("Ending the current conversation...")
-        break
-    elif question.lower() == 'new':
-        conversation_state = {}
-        print("Starting a new conversation...")
-    else:
-        # Check if a similar question has been asked before
-        similar_question = None
-        for prev_question in conversation_state:
-            if similar(prev_question, question) > 0.8:
-                similar_question = prev_question
-                break
-
-        if similar_question:
-            print(f"As per my previous answer: {conversation_state[similar_question]}")
-        else:
-            # Use asyncio.run to run the coroutine and get the result
-            answer = asyncio.run(query_model(question))
-            conversation_state[question] = answer
-            print(answer)
-
+        return "safe"
