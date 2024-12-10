@@ -3,3 +3,5 @@ Meta-Llama-3-8B-Instruct.Q4_K_M.gguf
 meta-llama-guard-2-8b_q4_k_m.gguf
 Meta-Llama-3-8B-Instruct.Q4_1.gguf
 prize.json
+compose.yml
+fastapi

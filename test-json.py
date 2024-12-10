@@ -13,29 +13,29 @@ from langchain.chains import LLMChain
 import time
 import asyncio
 
-# LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
-# n_gpu_layers = 63000
-# n_batch = 512
+LLAMA_GUARD_MODEL_PATH = "./PhoGPT-7B5-Instruct-q4_k_m.gguf"
+n_gpu_layers = 63000
+n_batch = 512
 
 class RAGChatbot:
     def __init__(self):        
         self.vectorstore = None
         self.rag_chain = None
 
-    # def initialize_llm(self, model_path) -> LlamaCpp:
-    #     llm = LlamaCpp(
-    #         model_path=model_path,
-    #         callbacks=[StreamingStdOutCallbackHandler()],
-    #         top_k=-1,
-    #         top_p=0.95,
-    #         temperature=0.8,
-    #         max_tokens=128,
-    #         n_gpu_layers=n_gpu_layers,
-    #         n_batch=n_batch,
-    #         n_ctx=2048,
-    #         verbose=True,
-    #     )
-    #     return llm
+    def initialize_llm(self, model_path) -> LlamaCpp:
+        llm = LlamaCpp(
+            model_path=model_path,
+            callbacks=[StreamingStdOutCallbackHandler()],
+            top_k=-1,
+            top_p=0.95,
+            temperature=0.5,
+            max_tokens=2048,
+            n_gpu_layers=n_gpu_layers,
+            n_batch=n_batch,
+            n_ctx=2048,
+            verbose=True,
+        )
+        return llm
 
     # async def evaluate_safety(self, user_question) -> str:
     #     safety_prompt = f"""
@@ -82,7 +82,7 @@ class RAGChatbot:
         print(token, end=' ', flush=True)  # Print each token followed by a space.
 
     def index_json_folder(self, file_path):
-        loader = JSONLoader(file_path, jq_schema=".prizes[]", text_content=False)
+        loader = JSONLoader(file_path, jq_schema=".", text_content=False)
         docs = loader.load()
         self._index_documents(docs)
         return {"message": "JSON files indexed successfully"}
@@ -103,8 +103,24 @@ class RAGChatbot:
             search_kwargs={"k": 6},
         )
         
-        prompt = hub.pull("rlm/rag-prompt")
-        llama = Ollama(model="llama3", temperature=0)
+        prompt = """
+            ###
+            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp. Sử dụng ngữ cảnh nhận được để trả lời. 
+            Nếu bạn không biết câu trả lời, chỉ cần nói rằng bạn không biết. 
+            Sử dụng tối đa ba câu và giữ cho lời giải đáp của bạn thật súc tích.
+            Nếu yêu cầu không liên quan đến vai trò của bạn vui lòng bảo rằng bạn không biết.
+            Yêu cầu: {question}
+
+            Ngữ cảnh: {context}
+            \n
+            ###
+            Trả lời:
+            """
+        prompt_template = PromptTemplate(
+            template=prompt,
+            input_variables=["prompt"]
+        )
+        llama = Ollama(model="mrjacktung/phogpt-4b-chat-gguf", temperature=0.3)
         # llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
@@ -112,7 +128,7 @@ class RAGChatbot:
 
         self.rag_chain = (
             {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt 
+            | prompt_template 
             | llama
             | StrOutputParser()
         )
@@ -172,7 +188,7 @@ class RAGChatbot:
 chatbot = RAGChatbot()
 
 # Index JSON files from a folder
-file_path_json = "prize.json"
+file_path_json = "sample-data.json"
 print(chatbot.index_json_folder(file_path_json))
 
 # Start continuous conversation

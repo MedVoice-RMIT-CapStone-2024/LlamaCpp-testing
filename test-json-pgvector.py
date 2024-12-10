@@ -12,7 +12,8 @@ from difflib import SequenceMatcher
 from langchain.chains import LLMChain
 import time
 import asyncio
-from langchain_community.vectorstores import PGVector
+from langchain_postgres import PGVector
+from langchain_postgres.vectorstores import PGVector
 
 
 # LLAMA_GUARD_MODEL_PATH = "./Meta-Llama-3-70B-Instruct.Q5_K_M.gguf"
@@ -94,7 +95,7 @@ class RAGChatbot:
     def _index_documents(self, docs):
         embedding = OllamaEmbeddings(model="nomic-embed-text")
 
-        CONNECTION_STRING = "postgresql+psycopg2://postgres:132456@localhost:5432/vector_db"
+        CONNECTION_STRING = "postgresql+psycopg://langchain:langchain@localhost:6024/langchain"
         COLLECTION_NAME = 'testing'
         
         if self.vectorstore is None:
@@ -102,7 +103,8 @@ class RAGChatbot:
                 documents=docs,
                 embedding=embedding,
                 collection_name=COLLECTION_NAME,
-                connection_string=CONNECTION_STRING,
+                connection=CONNECTION_STRING,
+                use_jsonb=True,
             )
         else:
             self.vectorstore.add_documents(docs)
