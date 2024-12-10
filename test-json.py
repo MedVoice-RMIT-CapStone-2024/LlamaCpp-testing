@@ -120,7 +120,7 @@ class RAGChatbot:
             template=prompt,
             input_variables=["prompt"]
         )
-        llama = Ollama(model="mrjacktung/phogpt-4b-chat-gguf", temperature=0.3)
+        llama = Ollama(model="nqduc/mixsura-sft", temperature=0.3)
         # llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
