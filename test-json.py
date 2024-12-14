@@ -104,21 +104,21 @@ class RAGChatbot:
         )
         
         prompt = """
-            You are a helpful assistant for Q&A tasks in Viet Nam who reply in Vietnamese. Use the provided context to answer. 
-            If you don't know the answer, simply say you don't know. Use a maximum of three sentences and keep your answers concise. 
-            If the request is irrelevant to your role, just say you don't know.
+            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp bằng Tiếng Việt. Sử dụng ngữ cảnh nhận được để trả lời. 
+            Nếu bạn không biết câu trả lời, chỉ cần nói rằng bạn không biết. 
+            Sử dụng tối đa ba câu và giữ cho lời giải đáp của bạn thật súc tích.
+            Nếu yêu cầu không liên quan đến vai trò của bạn vui lòng bảo rằng bạn không biết.
+            Yêu cầu: {question}
 
-            Question: {question}
-
-            Context: {context}
-
-            Answer:
+            Ngữ cảnh: {context}
+           
+            Trả lời:
             """
         prompt_template = PromptTemplate(
             template=prompt,
             input_variables=["prompt"]
         )
-        llama = Ollama(model="taozhiyuai/openbiollm-llama-3-chinese:70b_q4_k_m", temperature=0.3)
+        llama = Ollama(model="nqduc/mixsura-sft:mixsura-sft-q4_K_M", temperature=0.3)
         # llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
