@@ -104,7 +104,7 @@ class RAGChatbot:
         )
         
         prompt = """
-            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp bằng Tiếng Việt. Sử dụng ngữ cảnh nhận được để trả lời. 
+            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp thông minh. Sử dụng ngữ cảnh nhận được để trả lời. 
             Nếu bạn không biết câu trả lời, chỉ cần nói rằng bạn không biết. 
             Nếu yêu cầu không liên quan đến vai trò của bạn vui lòng bảo rằng bạn không biết.
             Yêu cầu: {question}
@@ -117,7 +117,7 @@ class RAGChatbot:
             template=prompt,
             input_variables=["prompt"]
         )
-        llama = Ollama(model="nqduc/mixsura-sft:mixsura-sft-q4_K_M", temperature=0.3)
+        llama = Ollama(model="nqduc/mixsura-sft:mixsura-sft-q8_0", temperature=0.3)
         # llama = self.initialize_llm(LLAMA_GUARD_MODEL_PATH)
         
         def format_docs(docs):
