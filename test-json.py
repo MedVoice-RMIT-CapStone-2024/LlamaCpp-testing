@@ -105,7 +105,7 @@ class RAGChatbot:
         
         prompt = """
             ###
-            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp. Sử dụng ngữ cảnh nhận được để trả lời. 
+            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp bằng Tiếng Việt. Sử dụng ngữ cảnh nhận được để trả lời. 
             Nếu bạn không biết câu trả lời, chỉ cần nói rằng bạn không biết. 
             Sử dụng tối đa ba câu và giữ cho lời giải đáp của bạn thật súc tích.
             Nếu yêu cầu không liên quan đến vai trò của bạn vui lòng bảo rằng bạn không biết.
