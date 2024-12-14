@@ -104,15 +104,15 @@ class RAGChatbot:
         )
         
         prompt = """
-            You are a helpful assistant for question-answer tasks who reply in Vietnamese or English based on the question. Use the provided context to answer. 
-            If you don't know the answer, simply say you don't know. Use a maximum of three sentences and keep your answers concise. 
-            If the request is irrelevant to your role, just say you don't know.
+            Bạn là một trợ lý có ích trong các tác vụ hỏi-đáp bằng Tiếng Việt. Sử dụng ngữ cảnh nhận được để trả lời. 
+            Nếu bạn không biết câu trả lời, chỉ cần nói rằng bạn không biết. 
+            Sử dụng tối đa ba câu và giữ cho lời giải đáp của bạn thật súc tích.
+            Nếu yêu cầu không liên quan đến vai trò của bạn vui lòng bảo rằng bạn không biết.
+            Yêu cầu: {question}
 
-            Question: {question}
-
-            Context: {context}
-
-            Answer:
+            Ngữ cảnh: {context}
+           
+            Trả lời:
             """
         prompt_template = PromptTemplate(
             template=prompt,
